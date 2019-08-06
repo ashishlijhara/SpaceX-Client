@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Data;
-using Unity.Entities;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -56,16 +55,14 @@ public class Orbit : MonoBehaviour
 
     double GetDouble(object s)
     {
-        double val;
-        double.TryParse(s.ToString(),out val);
-        return val;
+        return Convert.ToDouble(s.ToString(), System.Globalization.CultureInfo.InvariantCulture);
     }
 
     Vector3 VectorForUnity(DataRow row)
     {
         Vector3Double vec = OrbitHelper.OrbitalStateVectors(GetDouble(row[2]), GetDouble(row[3]), GetDouble(row[4]), GetDouble(row[5]), GetDouble(row[6]), GetDouble(row[8]));//Calculations.CalculateOrbitalPosition(GetDouble(row[2]), GetDouble(row[3]), GetDouble(row[4]), GetDouble(row[5]), GetDouble(row[6]), GetDouble(row[8]));
 
-        Vector3 v = (vec / div).ToFLoat();//new Vector3((float)(vec.x / div), (float)(vec.y / div), (float)(vec.z / div));
+        Vector3 v = (vec / div).ToFLoat();
         return v;
     }
 
@@ -86,7 +83,6 @@ public class Orbit : MonoBehaviour
             DateTime nextDate = DateTime.ParseExact(csvData.Rows[currRow + 1][1].ToString(), "yyyy-MM-dd HH:mm:ss", new CultureInfo("en-US"));
             DateTime currDate = DateTime.ParseExact(csvData.Rows[currRow][1].ToString(), "yyyy-MM-dd HH:mm:ss", new CultureInfo("en-US"));
             duration = (float)(nextDate - currDate).TotalHours / 24;
-
             if (duration == 0)
                 duration = 1;
             ProcessPoint(duration);
