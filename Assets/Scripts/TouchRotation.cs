@@ -1,23 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 public class TouchRotation : MonoBehaviour
 {
     private float rotationRateX = 0.5f;
     private float rotationRateY = 0.1f;
 
-    [SerializeField]
-    GameObject sun;
+    Vector2 prevMousePos = Vector2.zero;
+    bool dragging = false;
 
-    public void Reset()
+    private void DoRotation(float delX, float delY)
     {
-        transform.localScale = Vector3.one;
-        transform.eulerAngles = new Vector3(0, 0, 0);
+        transform.Rotate(delY * rotationRateY,
+                                -delX * rotationRateX, 0, Space.Self);
     }
-
+    
     private void Update()
     {
+#if !UNITY_EDITOR
         if (Input.touchCount == 1)
         {
             Touch touch = Input.GetTouch(0);
@@ -28,14 +30,30 @@ public class TouchRotation : MonoBehaviour
             else if (touch.phase == TouchPhase.Moved)
             {
                 //Debug.Log("Touch phase Moved");
-                transform.Rotate(touch.deltaPosition.y * rotationRateY,
-                                 -touch.deltaPosition.x * rotationRateX, 0, Space.Self);
+               DoRotation(touch.deltaPosition.x, touch.deltaPosition.y);
             }
             else if (touch.phase == TouchPhase.Ended)
             {
                 //Debug.Log("Touch phase Ended");
             }
         }
+#else
+        if (Input.GetMouseButtonDown(0)){
+            prevMousePos = Input.mousePosition;
+            dragging = true;
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            dragging = false;
+        }
+        if (dragging)
+        {
+            Vector2 mousePos = Input.mousePosition;
+            Vector3 delta = mousePos - prevMousePos;
+            prevMousePos = mousePos;
+            DoRotation(delta.x, delta.y);
+        }
+#endif
 
         /*if (Input.touchCount == 2)
         {
